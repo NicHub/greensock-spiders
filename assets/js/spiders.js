@@ -2,6 +2,7 @@
 
 $( function() {
 
+    var delayFrameRate = 60; // Number of ms bewtween 2 frames.
     var width, height, canvas, ctx, points, target, animateHeader = true;
 
     main();
@@ -28,10 +29,15 @@ $( function() {
 
         // create points
         points = [];
-        for( var x=0; x<width; x=x+width/20 ) {
-            for( var y=0; y<height; y=y+height/20 ) {
-                var px = x + Math.random() * width / 20;
-                var py = y + Math.random() * height / 20;
+        var nbPoints = 400;
+        points.length = nbPoints;
+        var i = 0;
+        var xRes = width / 20;
+        var yRes = height / 20;
+        for( var x=0; x<width; x=x+xRes ) {
+            for( var y=0; y<height; y=y+yRes ) {
+                var px = x + Math.random() * xRes;
+                var py = y + Math.random() * yRes;
                 var p =
                 {
                     x:       px,
@@ -39,15 +45,15 @@ $( function() {
                     y:       py,
                     originY: py
                 };
-                points.push( p );
+                points[ i++ ] = p;
             }
         }
 
         // for each point find the 5 closest points
-        for( var i=0; i<points.length; i++ ) {
+        for( var i=0; i<nbPoints; i++ ) {
             var closest = [];
             var p1 = points[ i ];
-            for( var j=0; j<points.length; j++ ) {
+            for( var j=0; j<nbPoints; j++ ) {
                 var p2 = points[ j ]
                 if( !( p1 == p2 ) ) {
                     var placed = false;
@@ -81,11 +87,11 @@ $( function() {
     }
 
     // Event handling
-    var timeoutResize = false;
-    var delayResize = 200;
-    var timeoutMouseMove = false;
-    var delayMouseMove = 5;
     function addListeners() {
+        var delayResize = 200;
+        var delayMouseMove = 5;
+        var timeoutResize = false;
+        var timeoutMouseMove = false;
         if( !( 'ontouchstart' in window ) )
         {
             window.addEventListener( 'mousemove', function( e ) {
@@ -136,30 +142,30 @@ $( function() {
         }
     }
 
-    function animate() {
+    function animate( timestamp ) {
         if( animateHeader ) {
             ctx.clearRect( 0, 0, width, height );
             for( var i in points ) {
                 // detect points in range
-                if( Math.abs( getDistance( target, points[ i ] ) ) < 4000 ) {
+                var curDistance = getDistance( target, points[ i ] );
+                if( curDistance < 4000 ) {
                     points[ i ].active = 0.3;
                     points[ i ].circle.active = 0.6;
-                } else if( Math.abs( getDistance( target, points[ i ] ) ) < 20000 ) {
+                } else if( curDistance < 20000 ) {
                     points[ i ].active = 0.1;
                     points[ i ].circle.active = 0.3;
-                } else if( Math.abs( getDistance( target, points[ i ] ) ) < 40000 ) {
+                } else if( curDistance < 40000 ) {
                     points[ i ].active = 0.02;
                     points[ i ].circle.active = 0.1;
                 } else {
                     points[ i ].active = 0;
                     points[ i ].circle.active = 0;
                 }
-
                 drawLines( points[ i ] );
                 points[ i ].circle.draw();
             }
         }
-        requestAnimationFrame( animate );
+        setTimeout( function(){ requestAnimationFrame( animate ); }, delayFrameRate  );
     }
 
     function shiftPoint( p ) {
