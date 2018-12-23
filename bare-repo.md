@@ -10,8 +10,28 @@ Source : [Installation de Git sur un serveur][installation-de-git-sur-un-serveu
     # Copie du dépôt nu sur un serveur
     scp -r bare-repo.git ouilogique@ssh-ouilogique.alwaysdata.net:/home/ouilogique
 
+    # Effacer le dépôt nu local
+    rm -rf bare-repo.git
+
+    # Lister les dépôts distants
+    cd bare-repo
+    git remote show # => vide au début
+
+    # Ajouter le dépôt distant
+    git remote add origin ouilogique@ssh-ouilogique.alwaysdata.net:/home/ouilogique/bare-repo.git
+    git remote show # => origin
+
+    # Utiliser le dépôt distant
+    git add .
+    git commit -m "modif"
+    git push
+
     # Clonage du dépôt
     git clone ouilogique@ssh-ouilogique.alwaysdata.net:/home/ouilogique/bare-repo.git
+
+
+
+
 
 
 
